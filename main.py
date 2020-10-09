@@ -20,8 +20,24 @@ player_x = 370
 player_y = 480
 # Move
 player_dx = 0
+
 # Player score
-score = 0
+score_value = 0
+font = pygame.font.Font("freesansbold.ttf", 32)
+text_x = 10
+text_y = 10
+
+# Game over font
+game_over_font = pygame.font.Font("freesansbold.ttf", 64)
+
+
+def show_score(x, y):
+    score = font.render("Score : " + str(score_value), True, (255, 255, 255))
+    screen.blit(score, (x, y))
+
+def game_over_text():
+    over_text = game_over_font.render("GAME OVER", True, (255, 255, 255))
+    screen.blit(over_text, (200, 250))
 
 
 def player(x, y):
@@ -29,16 +45,25 @@ def player(x, y):
 
 
 # Enemy
-enemy_img = pygame.image.load("game_images/enemy.png")
-enemy_x = random.randint(0, 735)
-enemy_y = random.randint(50, 150)
+enemy_img = []
+enemy_x = []
+enemy_y = []
 # Move
-enemy_dx = 2
-enemy_dy = 40
+enemy_dx = []
+enemy_dy = []
+num_of_enemies = 6
+
+for i in range(num_of_enemies):
+    enemy_img.append(pygame.image.load("game_images/enemy.png"))
+    enemy_x.append(random.randint(0, 735))
+    enemy_y.append(random.randint(50, 150))
+    # Move
+    enemy_dx.append(2)
+    enemy_dy.append(60)
 
 
-def enemy(x, y):
-    screen.blit(enemy_img, (x, y))
+def enemy(x, y, i):
+    screen.blit(enemy_img[i], (x, y))
 
 
 # Shark Tooth
@@ -98,13 +123,34 @@ while running:
         player_x = 736
 
     # Enemy Movement
-    enemy_x += enemy_dx
-    if enemy_x < 0:
-        enemy_dx = 2
-        enemy_y += enemy_dy
-    elif enemy_x > 736:
-        enemy_dx = -2
-        enemy_y += enemy_dy
+    for i in range(num_of_enemies):
+
+        # Game over
+        collide_player = did_collide(enemy_x[i], enemy_y[i], player_x, player_y)
+        if(enemy_y[i] > 440):
+            for j in range(num_of_enemies):
+                enemy_y[j] = 2000
+            game_over_text()
+            break
+
+        enemy_x[i] += enemy_dx[i]
+        if enemy_x[i] < 0:
+            enemy_dx[i] = 2
+            enemy_y[i] += enemy_dy[i]
+        elif enemy_x[i] > 736:
+            enemy_dx[i] = -2
+            enemy_y[i] += enemy_dy[i]
+
+        # Collision
+        collision = did_collide(enemy_x[i], enemy_y[i], tooth_x, tooth_y)
+        if collision:
+            tooth_y = 480
+            tooth_state = "ready"
+            score_value += 1
+            enemy_x[i] = random.randint(0, 735)
+            enemy_y[i] = random.randint(50, 150)
+
+        enemy(enemy_x[i], enemy_y[i], i)
 
     # Tooth Movement
     if tooth_y <= 0:
@@ -115,16 +161,8 @@ while running:
         shoot_tooth(tooth_x, tooth_y)
         tooth_y -= tooth_dy
 
-    # Collision
-    collision = did_collide(enemy_x, enemy_y, tooth_x, tooth_y)
-    if collision:
-        tooth_y = 480
-        tooth_state = "ready"
-        score += 1
-        enemy_x = random.randint(0, 735)
-        enemy_y = random.randint(50, 150)
-        print(score)
+
 
     player(player_x, player_y)
-    enemy(enemy_x, enemy_y)
+    show_score(text_x, text_y)
     pygame.display.update()
