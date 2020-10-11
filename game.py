@@ -44,15 +44,15 @@ class Game:
         # Move
         self.enemy_dx = []
         self.enemy_dy = []
-        self.num_of_enemies = 6
+        self.num_of_enemies = 3
 
         for i in range(self.num_of_enemies):
             self.enemy_img.append(pygame.image.load("game_images/enemy.png"))
             self.enemy_x.append(random.randint(0, 735))
             self.enemy_y.append(random.randint(50, 150))
             # Move
-            self.enemy_dx.append(2)
-            self.enemy_dy.append(60)
+            self.enemy_dx.append(10)
+            self.enemy_dy.append(100)
 
         # Shark Tooth
         self.tooth_img = pygame.image.load("game_images/tooth.png")
@@ -60,7 +60,7 @@ class Game:
         self.tooth_y = 480
         # Move
         self.tooth_dx = 0
-        self.tooth_dy = 4
+        self.tooth_dy = 20
         self.tooth_state = "ready"
 
     def show_score(self, x, y):
@@ -75,8 +75,8 @@ class Game:
         screen.blit(self.player_img, (x, y))
 
     def shoot_tooth(self, x, y):
-        global tooth_state
-        tooth_state = "fire"
+        #global self.tooth_state
+        self.tooth_state = "fire"
         screen.blit(self.tooth_img, (x + 16, y + 10))
 
 
@@ -95,6 +95,8 @@ class Game:
     # Game Loop
 
     def frame_step(self, input_actions):
+        screen.fill((0, 0, 0))
+        screen.blit(background, (0, 0))
 
 
         # for event in pygame.event.get():
@@ -124,6 +126,8 @@ class Game:
 
         # INPUT ACTIONS
         # Action 0: Do Nothing
+        if input_actions[0] == 1:
+            self.player_dx = 0
 
         # Action 1: Go right
         if input_actions[1] == 1:
@@ -135,7 +139,8 @@ class Game:
 
         # Action 3: Shoot
         if input_actions[3] == 1:
-            if tooth_state == "ready":
+            self.player_dx = 0
+            if self.tooth_state == "ready":
                 self.shoot_tooth(self.player_x, self.tooth_y)
                 self.tooth_x = self.player_x
 
@@ -145,40 +150,42 @@ class Game:
         if self.player_x < 0:
             self.player_x = 0
         elif self.player_x > 736:
-            player_x = 736
+            self.player_x = 736
 
 
         # Enemy Movement
         for i in range(self.num_of_enemies):
 
             # Game over
-            collide_player = self.did_collide(self.enemy_x[i], self.enemy_y[i], player_x, self.player_y)
+            #collide_player = self.did_collide(self.enemy_x[i], self.enemy_y[i], self.player_x, self.player_y)
             if(self.enemy_y[i] > 440):
                 for j in range(self.num_of_enemies):
                     self.enemy_y[j] = 2000
                 #self.game_over_text()
                 terminate = True
-                self.__init__()
                 reward = -1
+                self.__init__()
                 break
 
             self.enemy_x[i] += self.enemy_dx[i]
             if self.enemy_x[i] < 0:
-                self.enemy_dx[i] = 2
+                self.enemy_dx[i] = 12
                 self.enemy_y[i] += self.enemy_dy[i]
             elif self.enemy_x[i] > 736:
-                self.enemy_dx[i] = -2
+                self.enemy_dx[i] = -12
                 self.enemy_y[i] += self.enemy_dy[i]
 
             # Collision
             collision = self.did_collide(self.enemy_x[i], self.enemy_y[i], self.tooth_x, self.tooth_y)
             if collision:
-                self.tooth_y = 480
-                self.tooth_state = "ready"
-
                 # UPDATE REWARD
-                self.score_value += 1
-                reward = 1
+                if self.tooth_state == "fire":
+                    self.score_value += 1
+                    reward = 1
+                    self.tooth_y = 480
+                    self.tooth_state = "ready"
+
+
 
                 self.enemy_x[i] = random.randint(0, 735)
                 self.enemy_y[i] = random.randint(50, 150)
@@ -197,10 +204,9 @@ class Game:
         # Process image data
         image_data = pygame.surfarray.array3d(pygame.display.get_surface())
 
-        screen.fill((0, 0, 0))
-        screen.blit(self.background, (0, 0))
-        self.player(player_x, self.player_y)
+        self.player(self.player_x, self.player_y)
         self.show_score(self.text_x, self.text_y)
+
         pygame.display.update()
         FPSCLOCK.tick(FPS)
 
