@@ -131,11 +131,11 @@ class Game:
 
         # Action 1: Go right
         if input_actions[1] == 1:
-            self.player_dx = 3.5
+            self.player_dx = 12
 
         # Action 2: Go Left
         if input_actions[2] == 1:
-            self.player_dx = -3.5
+            self.player_dx = -12
 
         # Action 3: Shoot
         if input_actions[3] == 1:
@@ -184,11 +184,8 @@ class Game:
                     reward = 1
                     self.tooth_y = 480
                     self.tooth_state = "ready"
-
-
-
-                self.enemy_x[i] = random.randint(0, 735)
-                self.enemy_y[i] = random.randint(50, 150)
+                    self.enemy_x[i] = random.randint(0, 735)
+                    self.enemy_y[i] = random.randint(50, 150)
 
             self.enemy(self.enemy_x[i], self.enemy_y[i], i)
 
