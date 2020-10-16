@@ -98,24 +98,6 @@ class Game:
         screen.fill((0, 0, 0))
         screen.blit(background, (0, 0))
 
-
-        # for event in pygame.event.get():
-        #     if event.type == pygame.QUIT:
-        #         running = False
-        #     if event.type == pygame.KEYDOWN:
-        #         if event.key == pygame.K_RIGHT:
-        #             player_dx = 3.5
-        #         if event.key == pygame.K_LEFT:
-        #             player_dx = -3.5
-        #         if event.key == pygame.K_SPACE:
-        #             if tooth_state == "ready":
-        #                 shoot_tooth(player_x, tooth_y)
-        #                 tooth_x = player_x
-        #
-        #     if event.type == pygame.KEYUP:
-        #         if event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT:
-        #             player_dx = 0
-
         pygame.event.pump()
 
         reward = 0.1
@@ -186,6 +168,7 @@ class Game:
                     self.tooth_state = "ready"
                     self.enemy_x[i] = random.randint(0, 735)
                     self.enemy_y[i] = random.randint(50, 150)
+                    self.player_x = 370
 
             self.enemy(self.enemy_x[i], self.enemy_y[i], i)
 
